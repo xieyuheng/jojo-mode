@@ -109,6 +109,7 @@ Out-of-the box `jojo-mode' understands lein, boot and gradle."
  ( ?\r "    " )
  ( ?\s "    " )
 
+ (   ?\.        "_p"  )
  (   ?\,        "_p"  )
  (   ?\-        "_p"  )
  (   ?\_        "_p"  )
@@ -224,6 +225,20 @@ Out-of-the box `jojo-mode' understands lein, boot and gradle."
           (group "<" (one-or-more (not blank)) ">")
           word-end)
       (1 font-lock-type-face))
+
+    ;; infix
+    (,(rx symbol-start
+          (group (or ":"
+                     "::"
+                     "<"
+                     ">"
+                     "<:"
+                     ":>"
+                     "="
+                     ":="
+                     "=:"))
+          word-end)
+      (1 font-lock-variable-name-face))
 
     ;; Class
     (,(rx symbol-start
@@ -342,7 +357,7 @@ Out-of-the box `jojo-mode' understands lein, boot and gradle."
           word-end)
       (1 font-lock-variable-name-face))
 
-    ;; quotype-q
+    ;; quotient-q
     (,(rx symbol-start
           (group (one-or-more (not blank)) "-q")
           word-end)
@@ -365,20 +380,6 @@ Out-of-the box `jojo-mode' understands lein, boot and gradle."
     ;; Dynamic variables - *something*
     ("\\(?:\\<\\|/\\)\\(\\*[a-z-]*\\*\\)\\>"
      1 font-lock-variable-name-face)
-
-    ;; infix
-    (,(rx symbol-start
-          (group (or ":"
-                     "::"
-                     "<"
-                     ">"
-                     "<:"
-                     ":>"
-                     "="
-                     ":="
-                     "=:"))
-          word-end)
-      (1 font-lock-variable-name-face))
 
     ;; prefix
     ;; (,(rx symbol-start
@@ -632,8 +633,16 @@ This function also returns nil meaning don't specify the indentation."
               (jojo--normal-indent last-sexp :always-align))
              ;; This is should be identical to the :defn above.
              ((and function
-                   (string-match "\\`\\(?:\\S +/\\)?\\(def[a-z]*\\|with-\\)"
-                                 function)
+                   (or (string-match "\\`\\(?:\\S +/\\)?\\(def[a-z]*\\|with-\\)"
+                                     function)
+                       (string-match "\\`\\(?:\\S +/\\)?\\(else\\|with-\\)"
+                                     function)
+                       (string-match "\\`\\(?:\\S +/\\)?\\([^[:blank:]]*-t\\|with-\\)"
+                                     function)
+                       (string-match "\\`\\(?:\\S +/\\)?\\([^[:blank:]]*-u\\|with-\\)"
+                                     function)
+                       (string-match "\\`\\(?:\\S +/\\)?\\([^[:blank:]]*-c\\|with-\\)"
+                                     function))
                    (not (string-match "\\`default" (match-string 1 function))))
               (+ lisp-body-indent containing-form-column))
              ;; Finally, nothing special here, just respect the user's
@@ -748,6 +757,7 @@ work).  To set it from Lisp code, use
   (+union :defn) (union :defn)
 
   (loop :defn)
+  (main :defn)
 
   (main-act :defn)
 
@@ -846,8 +856,7 @@ work).  To set it from Lisp code, use
   (+impl :defn)
   (+trait :defn)
 
-  (+quotype :defn)
-  (+simple-quotype :defn))
+  (+quotient :defn))
 
 ;;; Sexp navigation
 (defun jojo--looking-at-non-logical-sexp ()
