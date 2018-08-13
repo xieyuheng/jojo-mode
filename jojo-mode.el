@@ -206,6 +206,9 @@ Out-of-the box `jojo-mode' understands lein, boot and gradle."
     (,(rx symbol-start
           (group (or
                   "import"
+                  "import-as"
+                  "import-from"
+                  "import-from-all"
                   "as"
                   "error"
                   "match"
@@ -757,6 +760,7 @@ work).  To set it from Lisp code, use
   (+union :defn) (union :defn)
 
   (loop :defn)
+  (lambda :defn)
   (main :defn)
 
   (main-act :defn)
@@ -803,6 +807,7 @@ work).  To set it from Lisp code, use
   (set :defn)
 
   (+macro :defn)
+  (macro :defn)
   (+type-alias :defn) (type-alias :defn)
   (+imp :defn) (imp :defn)
   (+member :defn)
@@ -851,6 +856,7 @@ work).  To set it from Lisp code, use
   (include :defn)
 
   (table :defn)
+  (data :defn)
 
 
   (+impl :defn)
