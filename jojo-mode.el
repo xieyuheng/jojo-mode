@@ -109,7 +109,7 @@ Out-of-the box `jojo-mode' understands lein, boot and gradle."
  ( ?\r "    " )
  ( ?\s "    " )
 
- (   ?\.        "_p"  )
+
  (   ?\,        "_p"  )
  (   ?\-        "_p"  )
  (   ?\_        "_p"  )
@@ -118,6 +118,7 @@ Out-of-the box `jojo-mode' understands lein, boot and gradle."
  (   ?\"        "\"   ")
  (   ?'         "'   ")
  (   ?`         "'   ")
+ (   ?\.        "'   ")
  (   ?\;        "<   ")
 
  ;; symbol constituent:
@@ -205,6 +206,7 @@ Out-of-the box `jojo-mode' understands lein, boot and gradle."
 
     (,(rx symbol-start
           (group (or
+                  "load"
                   "import"
                   "import-as"
                   "import-from"
@@ -262,36 +264,6 @@ Out-of-the box `jojo-mode' understands lein, boot and gradle."
           word-end)
       (1 font-lock-variable-name-face))
 
-    ;; module-name:name
-    (,(rx symbol-start
-          (group (one-or-more (not (in ": \t")))
-                 ":")
-          (group (one-or-more (not blank)))
-          word-end)
-      (1 font-lock-type-face))
-
-    ;; name.field
-    (,(rx symbol-start
-          (group (one-or-more (not (in ". \t"))))
-          (group "." (one-or-more (not blank)))
-          word-end)
-      (2 font-lock-constant-face))
-
-    ;; :local-name.field-name
-    ;; :local-name.field-name.field-name
-    (,(rx symbol-start
-          (group ":" (one-or-more (not (in ". \t"))))
-          (group "." (one-or-more (not blank)))
-          word-end)
-      (1 font-lock-preprocessor-face)
-      (2 font-lock-constant-face))
-
-    ;; :local-name
-    (,(rx symbol-start
-          (group ":" (one-or-more (not (in ". \t"))))
-          word-end)
-      (1 font-lock-preprocessor-face))
-
     ;; .field-name
     ;; .field-name.field-name
     (,(rx symbol-start
@@ -311,7 +283,6 @@ Out-of-the box `jojo-mode' understands lein, boot and gradle."
                      "><"
                      "><><"
                      "><><><"
-                     "times"
                      "end"
                      "bye"
                      "recur"
@@ -339,6 +310,22 @@ Out-of-the box `jojo-mode' understands lein, boot and gradle."
           (group (one-or-more (not blank)) "-" (one-or-more "t"))
           word-end)
       (1 font-lock-type-face))
+
+    ;; type-t.field
+    (,(rx symbol-start
+          (group (one-or-more (not blank)) "-" (one-or-more "t"))
+          (group "." (one-or-more (not blank)))
+          word-end)
+      (1 font-lock-type-face)
+      (2 font-lock-constant-face))
+
+
+    ;; name.field
+    (,(rx symbol-start
+          (group (one-or-more (not blank)))
+          (group "." (one-or-more (not blank)))
+          word-end)
+      (2 font-lock-constant-face))
 
     ;; class-tc
     (,(rx symbol-start
@@ -739,7 +726,6 @@ work).  To set it from Lisp code, use
   (try 0)
   (catch 2)
   (finally 0)
-
   ;; binding forms
   (let :defn)
   (letfn '(1 ((:defn)) nil))
@@ -749,120 +735,51 @@ work).  To set it from Lisp code, use
   (dotimes 1)
   (when-let 1)
   (if-let 1)
-
-  (+class :defn) (class :defn)
-  (+supertype :defn) (supertype :defn)
-  (+subtype :defn) (subtype :defn)
-  (+type :defn) (type :defn) (+simple-type :defn) (simple-type :defn)
-  (+space :defn)
-  (+fun :defn) (fun :defn)
-  (+jojo :defn) (jojo :defn)
-  (+union :defn) (union :defn)
-
+  (class :defn)
+  (supertype :defn)
+  (subtype :defn)
+  (type :defn)
+  (space :defn)
+  (fun :defn)
+  (jojo :defn)
+  (union :defn)
   (loop :defn)
   (lambda :defn)
   (main :defn)
-
-  (main-act :defn)
-
-  (+generator :defn)
-
-  (define :defn)
-
   (primitive :defn)
-
-  (+method :defn) (method :defn)
-
-  (+process :defn) (process :defn)
-  (+channel :defn) (channel :defn)
-  (+ch :defn) (ch :defn)
-  (+proc :defn) (proc :defn)
-
   (create :defn)
-
   (clone :defn)
-
-  (clo :defn)
-
   (where :defn)
-
   (define :defn)
-
-
-  (+method :defn) (method :defn)
-
-  (+process :defn) (process :defn)
-  (+channel :defn) (channel :defn)
-  (+ch :defn) (ch :defn)
-  (+proc :defn) (proc :defn)
-
+  (method :defn)
+  (process :defn)
+  (channel :defn)
+  (ch :defn)
+  (proc :defn)
   (diff :defn)
   (letrec :defn)
   (call :defn)
-
-  (dict :defn)
-  (vect :defn)
-  (stack :defn)
-  (tuple :defn)
-  (set :defn)
-
-  (+macro :defn)
   (macro :defn)
-  (+type-alias :defn) (type-alias :defn)
-  (+imp :defn) (imp :defn)
-  (+member :defn)
-  (+proof :defn) (proof :defn)
+  (proof :defn)
   (run :defn)
   (list :defn)
-  (+def :defn)
-  (+data :defn)
-
-  (+var :defn)
-  (+atom :defn)
   (set :defn)
-
   (receive :defn)
   (send :defn)
-
   (note :defn)
   (test :defn)
   (assert :defn)
-  (assert! :defn)
-
-  (array :defn)
-  (vector :defn)
-
-  (+gene :defn)
-  (+disp :defn)
-  (+disp-default :defn)
-
-  (+var :defn)
-
   (forget :defn)
   (let-bind :defn)
-
-  (type-sum :defn)
-  (type-case :defn)
-
   (match :defn)
-
   (module :defn)
-  (+module :defn)
   (import :defn)
   (from :defn)
   (export :defn)
   (use :defn)
   (in :defn)
   (include :defn)
-
-  (table :defn)
-  (data :defn)
-
-
-  (+impl :defn)
-  (+trait :defn)
-
-  (+quotient :defn))
+  (data :defn))
 
 ;;; Sexp navigation
 (defun jojo--looking-at-non-logical-sexp ()
